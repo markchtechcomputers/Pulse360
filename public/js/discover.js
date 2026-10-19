@@ -42,7 +42,7 @@
     }
     root.innerHTML=items.map(item => {
       const date=dateLabel(item.publishedAt);
-      const host = (()=>{try{return new URL(item.url).hostname.replace(/^www\./,"")}catch{return item.source||"Publisher"}})();
+      const host = (()=>{try{return new URL(item.url).hostname}catch{return item.source||"Publisher"}})();
       return '<article class="discovery-item"><div><div class="discovery-meta"><span class="discovery-source">'+esc(item.source||host)+'</span><span>·</span><time>'+esc(date)+'</time></div><h2><a href="'+esc(item.url)+'" target="_blank" rel="noopener noreferrer">'+esc(item.title)+'</a></h2><p>'+esc(item.excerpt||"Open the original publisher for the full report.")+'</p></div><a class="discovery-open" href="'+esc(item.url)+'" target="_blank" rel="noopener noreferrer">Read source <span>↗</span></a></article>';
     }).join("");
   }
