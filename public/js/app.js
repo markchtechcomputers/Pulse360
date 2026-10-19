@@ -31,6 +31,44 @@
       $("#menu-toggle").setAttribute("aria-expanded",String(open));
       $("#menu-toggle").setAttribute("aria-label",open?"Close navigation":"Open navigation");
     });
+    const drawer=$("#explore-drawer");
+    const scrim=$("#drawer-scrim");
+    const closeDrawer=()=>{
+      if(!drawer)return;
+      drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");
+      if(scrim)scrim.hidden=true;
+      document.body.classList.remove("drawer-open");
+      $("#explore-toggle")?.setAttribute("aria-expanded","false");
+    };
+    const openDrawer=()=>{
+      if(!drawer)return;
+      drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");
+      if(scrim)scrim.hidden=false;
+      document.body.classList.add("drawer-open");
+      $("#explore-toggle")?.setAttribute("aria-expanded","true");
+      drawer.querySelector("input")?.focus();
+    };
+    $("#explore-toggle")?.addEventListener("click",()=>drawer?.classList.contains("open")?closeDrawer():openDrawer());
+    $("#explore-close")?.addEventListener("click",closeDrawer);
+    scrim?.addEventListener("click",closeDrawer);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
+    $("#drawer-search")?.addEventListener("submit",e=>{
+      e.preventDefault();
+      const q=$("#drawer-search-input").value.trim();
+      if(q)location.href="/discover.html?section=news&region=kenya&q="+encodeURIComponent(q);
+    });
+    document.addEventListener("click",e=>{
+      const social=e.target.closest("[data-social-coming]");
+      if(!social)return;
+      e.preventDefault();
+      const toast=$("#toast");
+      if(toast){
+        toast.textContent="Pulse360’s "+social.dataset.socialComing+" account will be linked here once it is created.";
+        toast.classList.add("show");
+        window.clearTimeout(window.__pulse360ToastTimer);
+        window.__pulse360ToastTimer=window.setTimeout(()=>toast.classList.remove("show"),3200);
+      }
+    });
     $("#search-toggle").addEventListener("click",()=>{
       const drawer=$("#search-drawer");drawer.hidden=!drawer.hidden;
       if(!drawer.hidden) $("#search-input").focus();
