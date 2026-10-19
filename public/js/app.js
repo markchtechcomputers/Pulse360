@@ -1,7 +1,7 @@
 (() => {
   const $ = (selector, root=document) => root.querySelector(selector);
   const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
-  const state = {stories:[],category:"all",limit:6,query:"",searchOpen:false};
+  const state = {stories:[],category:"all",limit:6,query:"",searchOpen:false,liveSection:"news",liveRegion:"kenya"};
   const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   const dateLabel = value => { const d=new Date(value+"T12:00:00"); return Number.isNaN(d.getTime()) ? value : new Intl.DateTimeFormat("en-KE",{day:"numeric",month:"short",year:"numeric"}).format(d); };
   const card = (story, hero=false) => `<article class="${hero?"hero-card":"story-card"}"><a class="story-image" href="/story.html?slug=${encodeURIComponent(story.slug)}" aria-label="Read: ${escapeHtml(story.title)}"><img src="${escapeHtml(story.image)}" alt="" loading="lazy" onerror="this.style.display='none'"></a><a class="category-label" href="#latest" data-category-link="${escapeHtml(story.categoryKey)}">${escapeHtml(story.category)}</a>${hero?'<h1>':'<h3>'}<a href="/story.html?slug=${encodeURIComponent(story.slug)}">${escapeHtml(story.title)}</a>${hero?'</h1>':'</h3>'}<p>${escapeHtml(story.excerpt)}</p><div class="story-meta"><span class="author">${escapeHtml(story.author)}</span><span>·</span><time datetime="${escapeHtml(story.date)}">${dateLabel(story.date)}</time><span>·</span><span>${story.readTime} min read</span></div></article>`;
@@ -30,6 +30,44 @@
       const open=$("#main-nav").classList.toggle("open");
       $("#menu-toggle").setAttribute("aria-expanded",String(open));
       $("#menu-toggle").setAttribute("aria-label",open?"Close navigation":"Open navigation");
+    });
+    const drawer=$("#explore-drawer");
+    const scrim=$("#drawer-scrim");
+    const closeDrawer=()=>{
+      if(!drawer)return;
+      drawer.classList.remove("open");drawer.setAttribute("aria-hidden","true");
+      if(scrim)scrim.hidden=true;
+      document.body.classList.remove("drawer-open");
+      $("#explore-toggle")?.setAttribute("aria-expanded","false");
+    };
+    const openDrawer=()=>{
+      if(!drawer)return;
+      drawer.classList.add("open");drawer.setAttribute("aria-hidden","false");
+      if(scrim)scrim.hidden=false;
+      document.body.classList.add("drawer-open");
+      $("#explore-toggle")?.setAttribute("aria-expanded","true");
+      drawer.querySelector("input")?.focus();
+    };
+    $("#explore-toggle")?.addEventListener("click",()=>drawer?.classList.contains("open")?closeDrawer():openDrawer());
+    $("#explore-close")?.addEventListener("click",closeDrawer);
+    scrim?.addEventListener("click",closeDrawer);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
+    $("#drawer-search")?.addEventListener("submit",e=>{
+      e.preventDefault();
+      const q=$("#drawer-search-input").value.trim();
+      if(q)location.href="/discover.html?section=news&region=kenya&q="+encodeURIComponent(q);
+    });
+    document.addEventListener("click",e=>{
+      const social=e.target.closest("[data-social-coming]");
+      if(!social)return;
+      e.preventDefault();
+      const toast=$("#toast");
+      if(toast){
+        toast.textContent="Pulse360’s "+social.dataset.socialComing+" account will be linked here once it is created.";
+        toast.classList.add("show");
+        window.clearTimeout(window.__pulse360ToastTimer);
+        window.__pulse360ToastTimer=window.setTimeout(()=>toast.classList.remove("show"),3200);
+      }
     });
     $("#search-toggle").addEventListener("click",()=>{
       const drawer=$("#search-drawer");drawer.hidden=!drawer.hidden;
@@ -62,6 +100,44 @@
       try{const res=await fetch("/api/newsletter",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("#newsletter-email").value})});const data=await res.json();message.textContent=data.error||"Thanks for your interest."; }
       catch{message.textContent="Could not connect. Please try again later.";}
     });
+    const liveLabel={news:"News",sports:"Sports",music:"Music & artists"};
+    async function loadLiveHeadlines(){
+      const root=$("#live-headline-grid"),status=$("#live-headline-status");
+      if(!root||!status)return;
+      status.textContent="Searching current "+liveLabel[state.liveSection]+" headlines for "+state.liveRegion+"…";
+      root.innerHTML='<div class="loading-card"></div><div class="loading-card"></div>';
+      const params=new URLSearchParams({section:state.liveSection,region:state.liveRegion});
+      try{
+        const response=await fetch("/api/discover?"+params.toString());
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||"Live feed is unavailable");
+        const items=(data.results||[]).slice(0,6);
+        if(!items.length)root.innerHTML='<p class="live-feed-empty">No headlines returned for this selection. Try another region or open the headline explorer.</p>';
+        else root.innerHTML=items.map(item=>{
+          let source=item.source||"Publisher";
+          if(!source){try{source=new URL(item.url).hostname}catch{}}
+          const when=item.publishedAt?new Date(item.publishedAt):null;
+          const date=when&&!Number.isNaN(when.getTime())?new Intl.DateTimeFormat("en-KE",{day:"numeric",month:"short"}).format(when):"Latest";
+          return '<article class="live-headline-card"><div class="live-card-meta"><span>'+escapeHtml(source)+'</span><time>'+escapeHtml(date)+'</time></div><h3><a href="'+escapeHtml(item.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(item.title)+'</a></h3><p>'+escapeHtml(item.excerpt||"Open the publisher for the full report.")+'</p><a class="live-read-link" href="'+escapeHtml(item.url)+'" target="_blank" rel="noopener noreferrer">Read original story ↗</a></article>';
+        }).join("");
+        status.textContent=items.length+" current headlines · "+liveLabel[state.liveSection]+" · "+state.liveRegion+" · "+new Date(data.fetchedAt).toLocaleTimeString("en-KE",{hour:"2-digit",minute:"2-digit"});
+      }catch(error){
+        root.innerHTML='<p class="live-feed-empty">'+escapeHtml(error.message||"Live headlines are temporarily unavailable.")+' <a href="/discover.html?section='+encodeURIComponent(state.liveSection)+'&region='+encodeURIComponent(state.liveRegion)+'">Open full search ↗</a></p>';
+        status.textContent="Could not refresh live headlines.";
+      }
+    }
+    $(".live-headline-controls [data-live-section]").forEach(btn=>btn.addEventListener("click",()=>{
+      state.liveSection=btn.dataset.liveSection;
+      $(".live-headline-controls [data-live-section]").forEach(b=>b.classList.toggle("active",b===btn));
+      $("#live-headlines-title").innerHTML=escapeHtml(liveLabel[state.liveSection])+' headlines<span class="accent-dot">.</span>';
+      loadLiveHeadlines();
+    }));
+    $(".live-headline-controls [data-live-region]").forEach(btn=>btn.addEventListener("click",()=>{
+      state.liveRegion=btn.dataset.liveRegion;
+      $(".live-headline-controls [data-live-region]").forEach(b=>b.classList.toggle("active",b===btn));
+      loadLiveHeadlines();
+    }));
+    loadLiveHeadlines();
     try {
       state.stories=await fetchStories({limit:50});
       const featured=state.stories.filter(s=>s.featured).slice(0,3);
