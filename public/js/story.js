@@ -3,6 +3,17 @@
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  const date=s=>{const d=new Date(s+"T12:00:00");return isNaN(d)?s:new Intl.DateTimeFormat("en-KE",{day:"numeric",month:"long",year:"numeric"}).format(d)};
  const card=s=>`<article class="story-card"><a class="story-image" href="/story.html?slug=${encodeURIComponent(s.slug)}"><img src="${esc(s.image)}" alt="" loading="lazy"></a><span class="category-label">${esc(s.category)}</span><h3><a href="/story.html?slug=${encodeURIComponent(s.slug)}">${esc(s.title)}</a></h3><p>${esc(s.excerpt)}</p></article>`;
+ document.addEventListener("click",e=>{
+  const social=e.target.closest("[data-social-coming]");
+  if(!social)return;
+  e.preventDefault();
+  let toast=document.querySelector("#toast");
+  if(!toast){toast=document.createElement("div");toast.id="toast";toast.className="toast";toast.setAttribute("role","status");document.body.appendChild(toast);}
+  toast.textContent="Pulse360’s "+social.dataset.socialComing+" account will be linked here once it is created.";
+  toast.classList.add("show");
+  window.clearTimeout(window.__pulse360ToastTimer);
+  window.__pulse360ToastTimer=window.setTimeout(()=>toast.classList.remove("show"),3200);
+ });
  document.addEventListener("DOMContentLoaded",async()=>{
   $("#year").textContent=new Date().getFullYear();
   if(localStorage.getItem("pulse360-theme")==="dark")document.body.classList.add("dark");
