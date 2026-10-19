@@ -1,0 +1,78 @@
+/* Pulse360 responsive repair layer — intentionally preserves the existing brand and favicon */
+:root{scroll-padding-top:150px}
+body{overflow-x:hidden}
+img{max-width:100%}
+.top-strip .strip-inner{min-width:0}
+.social-links{display:flex;align-items:center;flex-shrink:0}
+.social-link img{display:block}
+.site-header{z-index:40}
+.header-main{min-width:0}
+.brand{min-width:0}
+.brand-copy{min-width:0}
+.main-nav a{touch-action:manipulation}
+.pulse-search-bar{position:sticky;top:calc(var(--pulse-header-top,0px));z-index:29;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 0}
+.pulse-search-bar form{display:flex;gap:8px;align-items:center;max-width:780px;margin:0 auto}
+.pulse-search-bar input{flex:1;min-width:0;width:100%;height:42px;border:1px solid var(--line);border-radius:7px;background:var(--soft);color:var(--ink);padding:0 14px;font-size:13px}
+.pulse-search-bar button{height:42px;border:0;border-radius:7px;background:var(--red);color:#fff;font-size:12px;font-weight:800;padding:0 18px;white-space:nowrap}
+.pulse-search-bar button:focus-visible{outline:3px solid #ed244780;outline-offset:2px}
+.pulse-search-hint{font-size:10px;color:var(--muted);margin:5px auto 0;max-width:780px}
+@media(min-width:721px){.pulse-search-bar{position:relative;top:auto}}
+@media(max-width:720px){
+ .container{width:calc(100% - 28px)}
+ .strip-inner{overflow:visible!important;flex-wrap:wrap!important;min-height:0!important;gap:6px!important}
+ .top-strip .strip-inner{padding-top:7px;padding-bottom:7px}
+ .social-links{flex:1;min-width:0;overflow-x:auto;justify-content:flex-start;scrollbar-width:none}
+ .social-links::-webkit-scrollbar{display:none}
+ .top-strip .strip-inner>a{font-size:9px!important;margin-left:auto!important}
+ .top-strip .strip-inner>a span{font-size:12px}
+ .header-main{display:flex;flex-wrap:nowrap;gap:8px;padding-top:10px;padding-bottom:10px;min-height:68px}
+ .brand-mark{width:37px;height:37px;flex:0 0 37px}
+ .brand-copy strong{font-size:22px;letter-spacing:-1px}
+ .brand-copy small{font-size:6px;letter-spacing:.8px}
+ .header-actions{gap:4px}
+ .header-actions .icon-button{width:35px;height:35px;flex:0 0 35px}
+ /* The explore icon is another hamburger; keep only the actual mobile navigation toggle. */
+ #explore-toggle{display:none!important}
+ #search-toggle{display:none!important}
+ #theme-toggle{display:grid}
+ .search-drawer{display:none!important}
+ .mobile-menu{order:3;flex:0 0 36px;width:36px;height:36px;padding:8px}
+ .main-nav{order:10;width:100%;flex:0 0 100%;max-height:0;overflow:hidden;padding:0;margin:0;transition:max-height .2s ease}
+ .main-nav.open{max-height:65vh;overflow:auto;padding:7px 0 2px}
+ .pulse-search-bar{padding:8px 0}
+ .pulse-search-bar form{gap:6px}
+ .pulse-search-bar input{height:40px;font-size:12px;padding:0 10px}
+ .pulse-search-bar button{height:40px;padding:0 12px;font-size:11px}
+ .pulse-search-hint{display:none}
+ .breaking-bar{height:auto;min-height:52px;gap:8px;flex-wrap:wrap;padding-top:9px;padding-bottom:9px}
+ .breaking-bar p{flex:1;min-width:150px;line-height:1.5}
+ .breaking-date{display:none}
+ .hero-grid,.story-grid{grid-template-columns:1fr}
+ .hero-card:first-child .story-image,.story-image{aspect-ratio:1.65}
+ .hero-card h1{font-size:clamp(27px,7vw,38px)}
+ .section-heading{align-items:flex-start;flex-direction:column;gap:10px}
+ .tech-inner{grid-template-columns:1fr;gap:25px}
+ .newsletter-section{grid-template-columns:45px 1fr;padding:20px 15px;gap:13px}
+ .newsletter-form{grid-column:1/-1}
+ .footer-main{grid-template-columns:1fr!important;gap:25px}
+ .live-headline-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding-bottom:8px}
+ .live-headline-card{flex:0 0 min(84vw,340px);scroll-snap-align:start}
+ .discovery-page{padding-top:20px}
+ .discovery-controls{gap:10px}
+ .discovery-tabs{max-width:100%}
+ .discovery-tabs a{padding:9px 10px}
+ .discovery-search{display:flex;gap:7px}
+ .discovery-search input{min-width:0;width:100%}
+}
+@media(min-width:721px) and (max-width:1024px){
+ .container{width:calc(100% - 40px)}
+ .header-main{gap:14px}
+ .brand-copy small{letter-spacing:1px}
+ .main-nav{gap:12px}
+ .main-nav a{font-size:10px}
+ .hero-grid{grid-template-columns:1.2fr 1fr 1fr;gap:15px}
+ .story-grid{gap:24px 16px}
+ .newsletter-section{grid-template-columns:48px 1fr}
+ .newsletter-form{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
