@@ -1,82 +1,29 @@
-const express = require("express");
-const path = require("path");
-const app = express();
+const express=require('express');
+const path=require('path');
+const app=express();
+app.disable('x-powered-by');
+app.use(express.json({limit:'32kb'}));
 
-app.disable("x-powered-by");
-app.use(express.json({ limit: "32kb" }));
-app.use(express.urlencoded({ extended: false, limit: "32kb" }));
-
-const stories = [
-  {id:"ke-economy",slug:"kenya-economic-outlook-business-watch",category:"Kenya",categoryKey:"news",region:"KENYA",title:"Kenya’s economy: the developments businesses and households are watching",excerpt:"A look at the policy decisions, prices and business signals shaping everyday life across the country.",author:"Pulse360 Desk",date:"2026-10-19",readTime:5,image:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=85",featured:true,body:["Kenya’s economic story is closely connected to the cost of living, jobs, investment and the choices made by businesses and public institutions.","This Pulse360 sample article demonstrates the publication layout. Replace demo copy with verified reporting, named sources, dates and links before publishing it as factual news."]},
-  {id:"africa-tech",slug:"african-technology-innovation-watch",category:"Africa",categoryKey:"news",region:"AFRICA",title:"African innovation: startups are building for local needs and global markets",excerpt:"From digital services to practical tools for small businesses, founders are finding new ways to solve familiar problems.",author:"Pulse360 Business",date:"2026-10-18",readTime:4,image:"https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=85"},
-  {id:"world-climate",slug:"world-climate-and-energy-briefing",category:"World",categoryKey:"news",region:"WORLD",title:"The global energy transition: the questions that matter to consumers",excerpt:"Energy security, affordability and investment remain central questions in the transition to cleaner power.",author:"Pulse360 World",date:"2026-10-18",readTime:6,image:"https://images.unsplash.com/photo-1473341304170-971aecb8e3f8?auto=format&fit=crop&w=900&q=85"},
-  {id:"football-africa",slug:"african-football-talent-on-the-rise",category:"Football",categoryKey:"sports",region:"SPORTS",title:"African football talent continues to attract attention around the world",excerpt:"A closer look at player development, scouting and the pathways connecting local clubs to bigger stages.",author:"Pulse360 Sport",date:"2026-10-19",readTime:4,image:"https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=1200&q=85",featured:true},
-  {id:"sports-fitness",slug:"the-growth-of-community-sports",category:"Sport",categoryKey:"sports",region:"SPORTS",title:"Why community sport matters beyond the final score",excerpt:"Local teams create opportunities for young people, build community and make sport accessible.",author:"Pulse360 Sport",date:"2026-10-17",readTime:3,image:"https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=900&q=85"},
-  {id:"music-africa",slug:"african-music-global-audience",category:"Music",categoryKey:"entertainment",region:"CULTURE",title:"African music is reaching new listeners across borders",excerpt:"Artists, producers and independent teams are connecting sounds and audiences through digital platforms.",author:"Pulse360 Culture",date:"2026-10-19",readTime:4,image:"https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1200&q=85",featured:true},
-  {id:"artist-profile",slug:"inside-the-independent-artist-journey",category:"Artists",categoryKey:"entertainment",region:"ARTISTS",title:"Building a music career independently: the work behind the spotlight",excerpt:"Creative direction, consistent releases and audience connection can all shape an emerging artist’s journey.",author:"Pulse360 Culture",date:"2026-10-16",readTime:5,image:"https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=85"},
-  {id:"film-culture",slug:"african-film-and-screen-culture",category:"Entertainment",categoryKey:"entertainment",region:"CULTURE",title:"African screen stories are opening new conversations",excerpt:"Film, television and online creators are finding fresh ways to tell stories rooted in local experience.",author:"Pulse360 Culture",date:"2026-10-15",readTime:4,image:"https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=85"},
-  {id:"digital-life",slug:"digital-skills-and-the-future-of-work",category:"Technology",categoryKey:"technology",region:"TECH",title:"Digital skills and the changing world of work",excerpt:"Practical digital skills can help people and small organisations adapt to new ways of working.",author:"Pulse360 Desk",date:"2026-10-14",readTime:4,image:"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85"}
+const stories=[
+{id:'ke',slug:'kenya-economic-outlook-business-watch',category:'Kenya',categoryKey:'news',region:'KENYA',title:'Kenya news and current affairs',excerpt:'Follow developments in public affairs, business, counties and society.',author:'Pulse360 Desk',date:'2026-10-19',readTime:4,image:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=85',featured:true},
+{id:'af',slug:'africa-stories-shaping-the-continent',category:'Africa',categoryKey:'news',region:'AFRICA',title:'Africa: stories shaping the continent',excerpt:'Regional developments, people, business, technology and culture from across Africa.',author:'Pulse360 Africa',date:'2026-10-19',readTime:4,image:'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=900&q=85'},
+{id:'world',slug:'world-news-international-affairs',category:'World',categoryKey:'news',region:'WORLD',title:'World news and international affairs',excerpt:'A broader view of the stories influencing the world.',author:'Pulse360 World',date:'2026-10-19',readTime:5,image:'https://images.unsplash.com/photo-1521292270410-a8c4d716d518?auto=format&fit=crop&w=900&q=85'},
+{id:'football',slug:'football-sports-around-the-world',category:'Football',categoryKey:'sports',region:'SPORTS',title:'Football and sports around the world',excerpt:'Teams, players and major sporting developments.',author:'Pulse360 Sport',date:'2026-10-19',readTime:4,image:'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=900&q=85',featured:true},
+{id:'athletics',slug:'kenyan-athletics-african-sporting-talent',category:'Athletics',categoryKey:'sports',region:'SPORTS',title:'Kenyan athletics and African sporting talent',excerpt:'Athletes and competitions from Kenya and Africa.',author:'Pulse360 Sport',date:'2026-10-19',readTime:3,image:'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=900&q=85'},
+{id:'music',slug:'music-artists-making-the-sound-of-now',category:'Music',categoryKey:'entertainment',region:'CULTURE',title:'Music and artists making the sound of now',excerpt:'New releases, artists, albums, performances and music culture.',author:'Pulse360 Music',date:'2026-10-19',readTime:4,image:'https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=85',featured:true},
+{id:'artists',slug:'african-artists-building-global-audiences',category:'Artists',categoryKey:'entertainment',region:'ARTISTS',title:'African artists building global audiences',excerpt:'Profiles and stories from the creative community.',author:'Pulse360 Culture',date:'2026-10-19',readTime:4,image:'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=900&q=85'},
+{id:'tech',slug:'technology-ai-and-digital-life',category:'Technology',categoryKey:'technology',region:'TECH',title:'Technology, AI and digital life',excerpt:'Innovation, startups, artificial intelligence and the future of work.',author:'Pulse360 Tech',date:'2026-10-19',readTime:4,image:'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=900&q=85'}
 ];
 
-const DISCOVERY_SOURCES = { all:"", kenyans:"site:kenyans.co.ke", cnn_africa:"site:edition.cnn.com/world/africa", bbc_africa:"site:bbc.com/news/world/africa", aljazeera:"site:aljazeera.com/news", espn:"site:espn.com", billboard:"site:billboard.com" };
-const DISCOVERY_SECTIONS = {
-  news:{terms:{kenya:"Kenya news",africa:"Africa news",world:"world news",international:"international news"}},
-  sports:{terms:{kenya:"Kenya sports",africa:"African sports",world:"international sports",international:"international sports"}},
-  music:{terms:{kenya:"Kenyan music artists",africa:"African music artists",world:"international music artists",international:"global music entertainment"}},
-  entertainment:{terms:{kenya:"Kenya entertainment celebrities",africa:"African entertainment",world:"world entertainment",international:"international entertainment"}},
-  technology:{terms:{kenya:"Kenya technology innovation",africa:"Africa technology innovation",world:"global technology news",international:"international technology news"}}
-};
-
-function decodeXml(value){return String(value||"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_m,n)=>String.fromCodePoint(Number(n))).replace(/\s+/g," ").trim();}
-function rssItems(xml){
-  const items=[]; const blocks=String(xml).match(/<item\b[\s\S]*?<\/item>/gi)||[];
-  for(const block of blocks){
-    const field=name=>{const open=new RegExp("<"+name+"\\b[^>]*>","i"),found=block.match(open);if(!found)return"";const begin=found.index+found[0].length,closeAt=block.toLowerCase().indexOf("</"+name.toLowerCase()+">",begin);return closeAt<0?"":decodeXml(block.slice(begin,closeAt));};
-    const title=field("title"),url=field("link"),excerpt=field("description"),source=field("source"),publishedAt=field("pubDate");
-    if(title&&/^https?:\/\//i.test(url))items.push({title,url,excerpt:excerpt.slice(0,280),source,publishedAt:publishedAt||null});
-  }
-  return items;
-}
-async function fetchText(url,headers={}){
-  const response=await fetch(url,{headers:{"User-Agent":"Pulse360/1.0 news reader","Accept":"application/rss+xml, application/xml, text/xml, application/json, */*",...headers},signal:AbortSignal.timeout(10000)});
-  if(!response.ok)throw new Error("HTTP "+response.status); return response.text();
-}
-async function googleFeed(query){return rssItems(await fetchText("https://news.google.com/rss/search?q="+encodeURIComponent(query)+"&hl=en-KE&gl=KE&ceid=KE:en"));}
-async function directFeeds(section,region){
-  const feeds=[];
-  if(section==="news"){
-    feeds.push("https://feeds.bbci.co.uk/news/world/africa/rss.xml","https://feeds.bbci.co.uk/news/world/rss.xml");
-    if(region==="kenya")feeds.push("https://news.google.com/rss/search?q="+encodeURIComponent("site:kenyans.co.ke Kenya")+"&hl=en-KE&gl=KE&ceid=KE:en");
-  }
-  if(section==="music")feeds.push("https://www.billboard.com/feed/");
-  const settled=await Promise.allSettled(feeds.map(fetchText));
-  return settled.flatMap(x=>x.status==="fulfilled"?rssItems(x.value):[]);
-}
-
-app.get("/api/discover",async(req,res)=>{
-  const section=String(req.query.section||"news").toLowerCase(),region=String(req.query.region||"kenya").toLowerCase(),q=String(req.query.q||"").trim().slice(0,140),source=String(req.query.source||"all").toLowerCase();
-  const config=DISCOVERY_SECTIONS[section]||DISCOVERY_SECTIONS.news, regionTerm=config.terms[region]||config.terms.kenya, sourceTerm=DISCOVERY_SOURCES[source]||"",query=[regionTerm,sourceTerm,q].filter(Boolean).join(" ");
-  try{
-    let results=[];
-    const direct=await directFeeds(section,region); results.push(...direct);
-    if(section==="sports"){
-      const leagues=["football/eng.1","football/uefa.champions","basketball/nba","soccer/usa.usa_mls","soccer/eng.1"];
-      const espn=await Promise.allSettled(leagues.map(l=>fetchText("https://site.api.espn.com/apis/site/v2/sports/"+l+"/news")));
-      for(const x of espn)if(x.status==="fulfilled"){try{const j=JSON.parse(x.value);for(const a of (j.articles||[]))if(a.headline&&a.links?.web?.href)results.push({title:a.headline,url:a.links.web.href,excerpt:a.description||a.published||"Open ESPN for the full story.",source:"ESPN",publishedAt:a.published||null});}catch{}}
-    }
-    const google=await googleFeed(query); results.push(...google);
-    const seen=new Set();results=results.filter(x=>x.title&&x.url&&!seen.has(x.url)&&seen.add(x.url)).sort((a,b)=>new Date(b.publishedAt||0)-new Date(a.publishedAt||0)).slice(0,30);
-    res.set("Cache-Control","public, s-maxage=180, stale-while-revalidate=600");
-    res.json({query,section,region,source:sourceTerm?source:"all",total:results.length,results,fetchedAt:new Date().toISOString(),provider:"Pulse360 multi-source live feeds",note:"Headlines and excerpts link to the original publisher."});
-  }catch(error){res.status(502).json({error:"Live feeds are temporarily unavailable.",details:process.env.NODE_ENV==="development"?error.message:undefined});}
-});
-
-app.get("/api/health",(_req,res)=>res.json({ok:true,service:"Pulse360 API",version:"1.1.0",liveFeeds:true}));
-app.get("/api/categories",(_req,res)=>res.json([{key:"news",label:"News"},{key:"sports",label:"Sports"},{key:"entertainment",label:"Music & Entertainment"},{key:"technology",label:"Technology"}]));
-app.get("/api/stories",(req,res)=>{const q=String(req.query.q||"").trim().toLowerCase(),category=String(req.query.category||"").trim().toLowerCase(),limit=Math.min(Math.max(parseInt(req.query.limit,10)||20,1),50);let result=stories.filter(s=>(!category||s.categoryKey===category||s.category.toLowerCase()===category)&&(!q||[s.title,s.excerpt,s.category,s.author,s.region].join(" ").toLowerCase().includes(q)));if(req.query.featured==="true")result=result.filter(s=>s.featured);res.set("Cache-Control","public, s-maxage=60, stale-while-revalidate=300");res.json({total:result.length,stories:result.slice(0,limit)});});
-app.get("/api/stories/:slug",(req,res)=>{const story=stories.find(s=>s.slug===req.params.slug||s.id===req.params.slug);if(!story)return res.status(404).json({error:"Story not found"});res.json({story,related:stories.filter(s=>s.id!==story.id&&s.categoryKey===story.categoryKey).slice(0,3)});});
-app.post("/api/newsletter",(req,res)=>{const email=String(req.body.email||"").trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({error:"Enter a valid email address."});return res.status(501).json({error:"Newsletter sign-up is not connected yet. Please check back soon."});});
-app.use("/api",(_req,res)=>res.status(404).json({error:"API endpoint not found"}));
-app.use(express.static(path.join(__dirname,"public")));
-app.get("*path",(_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+function clean(v){return String(v||'').replace(/<!\[CDATA\[|\]\]>/g,'').replace(/<[^>]*>/g,' ').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim()}
+function rss(xml){const out=[];for(const b of String(xml).match(/<item\b[\s\S]*?<\/item>/gi)||[]){const get=n=>{const m=b.match(new RegExp('<'+n+'\\b[^>]*>([\\s\\S]*?)</'+n+'>','i'));return m?clean(m[1]):''};const title=get('title'),url=get('link');if(title&&/^https?:\/\//.test(url))out.push({title,url,excerpt:get('description').slice(0,300),source:get('source'),publishedAt:get('pubDate')||null})}return out}
+async function text(url){const r=await fetch(url,{headers:{'User-Agent':'Pulse360/1.0','Accept':'application/rss+xml,application/xml,text/xml,*/*'},signal:AbortSignal.timeout(7000)});if(!r.ok)throw Error(String(r.status));return r.text()}
+async function google(q){try{return rss(await text('https://news.google.com/rss/search?q='+encodeURIComponent(q)+'&hl=en-KE&gl=KE&ceid=KE:en'))}catch{return []}}
+async function direct(section){const urls=[];if(section==='news')urls.push('https://feeds.bbci.co.uk/news/world/africa/rss.xml','https://feeds.bbci.co.uk/news/world/rss.xml');if(section==='music')urls.push('https://www.billboard.com/feed/');const a=await Promise.allSettled(urls.map(text));return a.flatMap(x=>x.status==='fulfilled'?rss(x.value):[])}
+app.get('/api/health',(_q,res)=>res.json({ok:true,liveFeeds:true,service:'Pulse360'}));
+app.get('/api/stories',(req,res)=>{const q=String(req.query.q||'').toLowerCase(),cat=String(req.query.category||'').toLowerCase(),limit=Math.min(Math.max(parseInt(req.query.limit,10)||20,1),50);let a=stories.filter(s=>(!cat||s.categoryKey===cat)&&(!q||[s.title,s.excerpt,s.category,s.region].join(' ').toLowerCase().includes(q)));res.json({total:a.length,stories:a.slice(0,limit)})});
+app.get('/api/stories/:slug',(req,res)=>{const s=stories.find(x=>x.slug===req.params.slug||x.id===req.params.slug);s?res.json({story:s,related:stories.filter(x=>x.id!==s.id).slice(0,3)}):res.status(404).json({error:'Story not found'})});
+app.get('/api/discover',async(req,res)=>{const section=String(req.query.section||'news').toLowerCase(),region=String(req.query.region||'kenya').toLowerCase();const terms={news:{kenya:'Kenya news',africa:'Africa news',world:'world news'},sports:{kenya:'Kenya sports',africa:'African sports',world:'international sports'},music:{kenya:'Kenyan music artists',africa:'African music artists',world:'international music artists'}};const q=(terms[section]||terms.news)[region]||'latest news';let results=await direct(section);if(section==='sports'){const a=await Promise.allSettled(['football/eng.1','football/uefa.champions','basketball/nba'].map(x=>text('https://site.api.espn.com/apis/site/v2/sports/'+x+'/news')));for(const x of a)if(x.status==='fulfilled')try{const j=JSON.parse(x.value);results.push(...(j.articles||[]).filter(a=>a.headline&&a.links?.web?.href).map(a=>({title:a.headline,url:a.links.web.href,excerpt:a.description||'Open ESPN for the full report.',source:'ESPN',publishedAt:a.published||null})))}catch{}}results.push(...await google(q));const seen=new Set();results=results.filter(x=>x.title&&x.url&&!seen.has(x.url)&&seen.add(x.url)).slice(0,30);res.set('Cache-Control','s-maxage=120, stale-while-revalidate=600');res.json({section,region,total:results.length,results,provider:'Pulse360 multi-source feeds'})});
+app.use(express.static(path.join(__dirname,'public')));
+app.get('*path',(_req,res)=>res.sendFile(path.join(__dirname,'public','index.html')));
 module.exports=app;
