@@ -115,7 +115,7 @@
         if(!items.length)root.innerHTML='<p class="live-feed-empty">No headlines returned for this selection. Try another region or open the headline explorer.</p>';
         else root.innerHTML=items.map(item=>{
           let source=item.source||"Publisher";
-          if(!source){try{source=new URL(item.url).hostname.replace(/^www\\./,"")}catch{}}
+          if(!source){try{source=new URL(item.url).hostname}catch{}}
           const when=item.publishedAt?new Date(item.publishedAt):null;
           const date=when&&!Number.isNaN(when.getTime())?new Intl.DateTimeFormat("en-KE",{day:"numeric",month:"short"}).format(when):"Latest";
           return '<article class="live-headline-card"><div class="live-card-meta"><span>'+escapeHtml(source)+'</span><time>'+escapeHtml(date)+'</time></div><h3><a href="'+escapeHtml(item.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(item.title)+'</a></h3><p>'+escapeHtml(item.excerpt||"Open the publisher for the full report.")+'</p><a class="live-read-link" href="'+escapeHtml(item.url)+'" target="_blank" rel="noopener noreferrer">Read original story ↗</a></article>';
