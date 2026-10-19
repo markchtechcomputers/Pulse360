@@ -1,0 +1,15 @@
+{
+  "name": "pulse360-news",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pulse360 — Kenyan, African and international news, sports, music and culture.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
