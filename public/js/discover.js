@@ -4,7 +4,8 @@
   const state = {
     section: params.get("section") || "news",
     region: params.get("region") || "kenya",
-    q: params.get("q") || ""
+    q: params.get("q") || "",
+    source: params.get("source") || "all"
   };
   const sectionLabels = {news:"News",sports:"Sports",music:"Music & artists",entertainment:"Entertainment",technology:"Technology"};
   const regionLabels = {kenya:"Kenya",africa:"Africa",world:"World & international",international:"International"};
@@ -22,8 +23,15 @@
     });
     document.querySelectorAll("[data-region]").forEach(a => {
       const next = new URLSearchParams({section:state.section,region:a.dataset.region});
+      if(state.source!=="all")next.set("source",state.source);
       a.href = "/discover.html?" + next.toString();
       a.classList.toggle("active",a.dataset.region===state.region);
+    });
+    document.querySelectorAll("[data-source]").forEach(a => {
+      const next = new URLSearchParams({section:state.section,region:state.region});
+      if(a.dataset.source!=="all")next.set("source",a.dataset.source);
+      a.href = "/discover.html?" + next.toString();
+      a.classList.toggle("active",a.dataset.source===state.source);
     });
   }
   function render(items) {
@@ -46,7 +54,7 @@
     syncLinks();
     $("#discovery-status").textContent="Searching current headlines…";
     $("#discovery-results").innerHTML='<div class="discovery-error">Contacting headline feeds…</div>';
-    const search=new URLSearchParams({section:state.section,region:state.region});
+    const search=new URLSearchParams({section:state.section,region:state.region,source:state.source});
     if(state.q) search.set("q",state.q);
     try {
       const response=await fetch("/api/discover?"+search.toString());
@@ -82,7 +90,7 @@
     });
     $("#discovery-search").addEventListener("submit",e=>{
       e.preventDefault();state.q=$("#discovery-query").value.trim();
-      const next=new URLSearchParams({section:state.section,region:state.region});
+      const next=new URLSearchParams({section:state.section,region:state.region,source:state.source});
       if(state.q)next.set("q",state.q);
       history.replaceState(null,"","/discover.html?"+next.toString());
       load();
