@@ -1,0 +1,31 @@
+/*
+Theme Name: Pulse360 News
+Theme URI: https://github.com/markchtechcomputers/Pulse360
+Description: Responsive editorial child theme for Pulse360, built on Kadence.
+Author: Pulse360
+Template: kadence
+Version: 1.0.0
+Text Domain: pulse360-news
+*/
+:root{--p360-ink:#111827;--p360-muted:#64748b;--p360-red:#e11d48;--p360-navy:#0b1730;--p360-line:#e5e7eb;--p360-paper:#fff;--p360-soft:#f5f7fb}
+body{color:var(--p360-ink);background:var(--p360-paper);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+a{transition:color .18s ease}a:hover{color:var(--p360-red)}
+.p360-topline{background:var(--p360-navy);color:#fff;font-size:12px;letter-spacing:.04em}
+.p360-topline-inner{max-width:1200px;margin:auto;padding:9px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.p360-topline a{color:#fff}.p360-live{font-weight:800;text-transform:uppercase}.p360-live:before{content:"";display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:var(--p360-red)}
+.p360-wrap,.p360-home{max-width:1200px;margin:0 auto;padding:0 22px}
+.p360-home{padding-top:28px;padding-bottom:48px}.p360-section{margin:38px 0}.p360-section-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:2px solid var(--p360-ink);padding-bottom:10px;margin-bottom:18px}.p360-section-heading h2{font-size:24px;line-height:1.15;margin:0;font-weight:850;letter-spacing:-.04em}.p360-section-heading a{font-size:12px;text-transform:uppercase;font-weight:800;color:var(--p360-red)}
+.p360-eyebrow,.p360-category{font-size:11px;letter-spacing:.09em;text-transform:uppercase;font-weight:850;color:var(--p360-red)}
+.p360-hero-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.8fr);gap:22px}
+.p360-lead,.p360-story-card{min-width:0}.p360-lead-image,.p360-card-image{display:block;overflow:hidden;background:#e8edf4}.p360-lead-image img,.p360-card-image img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}.p360-lead-image{aspect-ratio:16/9}.p360-card-image{aspect-ratio:16/10}.p360-lead-image:hover img,.p360-card-image:hover img{transform:scale(1.035)}
+.p360-lead h1{font-size:clamp(30px,4vw,52px);line-height:1.02;letter-spacing:-.055em;margin:12px 0}.p360-lead h1 a,.p360-story-card h3 a{color:var(--p360-ink)}.p360-lead-excerpt{color:#4b5563;font-size:16px;line-height:1.65}
+.p360-side-stories{display:grid;gap:17px;align-content:start}.p360-side-story{display:grid;grid-template-columns:124px 1fr;gap:13px;padding-bottom:17px;border-bottom:1px solid var(--p360-line)}.p360-side-story:last-child{border-bottom:0}.p360-side-story .p360-card-image{aspect-ratio:1.15}.p360-side-story h3{font-size:17px;line-height:1.25;letter-spacing:-.025em;margin:5px 0}
+.p360-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 20px}.p360-story-card h3{font-size:20px;line-height:1.23;letter-spacing:-.035em;margin:7px 0}.p360-story-card p{color:#596579;font-size:14px;line-height:1.6;margin:7px 0}
+.p360-meta{font-size:11px;color:var(--p360-muted);display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}.p360-empty-image{aspect-ratio:16/9;background:linear-gradient(135deg,#e9edf4,#f8fafc);display:grid;place-items:center;color:#94a3b8;font-size:12px}
+.p360-category-band{padding:26px;background:var(--p360-soft);border-top:3px solid var(--p360-red)}.p360-category-band .p360-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.p360-archive{padding-top:35px;padding-bottom:60px}.p360-archive-header{margin-bottom:26px;padding-bottom:18px;border-bottom:1px solid var(--p360-line)}.p360-archive-header h1{font-size:clamp(30px,4vw,46px);letter-spacing:-.05em;margin:6px 0}.p360-archive-description{color:var(--p360-muted)}.p360-archive-grid{margin-top:24px}.p360-pagination{display:flex;gap:8px;justify-content:center;margin-top:36px}.p360-pagination a,.p360-pagination span{padding:9px 13px;border:1px solid var(--p360-line);border-radius:4px}
+.p360-article-header{max-width:850px;margin:40px auto 24px;padding:0 22px}.p360-article-header h1{font-size:clamp(34px,5vw,60px);line-height:1.03;letter-spacing:-.06em;margin:10px 0}.p360-article-deck{font-size:20px;line-height:1.5;color:#526075}.p360-article-hero{max-width:1120px;margin:0 auto 32px;padding:0 22px}.p360-article-hero img{width:100%;max-height:650px;object-fit:cover}.p360-article-content{max-width:760px;margin:0 auto;padding:0 22px 60px;font-size:18px;line-height:1.85}.p360-article-content h2,.p360-article-content h3{line-height:1.2;letter-spacing:-.03em;margin-top:1.5em}.p360-article-content blockquote{border-left:4px solid var(--p360-red);margin:28px 0;padding:8px 20px;color:#475569}
+.p360-newsletter{background:var(--p360-navy);color:#fff;padding:32px;margin:42px 0 0;display:flex;align-items:center;justify-content:space-between;gap:22px}.p360-newsletter h2{color:#fff;margin:0 0 7px;font-size:25px}.p360-newsletter p{margin:0;color:#dbe4f4}.p360-newsletter a{background:var(--p360-red);color:#fff;padding:12px 17px;font-weight:800;white-space:nowrap}
+.p360-search-form form{display:flex;gap:8px;max-width:560px}.p360-search-form input[type=search]{min-width:0;flex:1;padding:11px;border:1px solid var(--p360-line)}.p360-search-form input[type=submit]{background:var(--p360-navy);color:#fff;border:0;padding:11px 16px}
+@media(max-width:800px){.p360-hero-grid{grid-template-columns:1fr}.p360-side-stories{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.p360-side-story{grid-template-columns:1fr;border:1px solid var(--p360-line);padding:10px;gap:8px}.p360-side-story .p360-card-image{aspect-ratio:16/9}.p360-card-grid,.p360-category-band .p360-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.p360-newsletter{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.p360-wrap,.p360-home{padding-left:15px;padding-right:15px}.p360-topline-inner{padding:8px 15px}.p360-topline-inner .p360-date{display:none}.p360-home{padding-top:18px}.p360-side-stories{grid-template-columns:1fr}.p360-side-story{grid-template-columns:110px 1fr}.p360-card-grid,.p360-category-band .p360-card-grid{grid-template-columns:1fr;gap:22px}.p360-lead h1{font-size:34px}.p360-story-card h3{font-size:19px}.p360-category-band{padding:18px 14px}.p360-section-heading h2{font-size:21px}}
