@@ -18,101 +18,65 @@ const stories = [
   {id:"digital-life",slug:"digital-skills-and-the-future-of-work",category:"Technology",categoryKey:"technology",region:"TECH",title:"Digital skills and the changing world of work",excerpt:"Practical digital skills can help people and small organisations adapt to new ways of working.",author:"Pulse360 Desk",date:"2026-10-14",readTime:4,image:"https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85"}
 ];
 
-
-const DISCOVERY_SOURCES = {
-  all: "",
-  kenyans: "site:kenyans.co.ke",
-  cnn_africa: "site:edition.cnn.com/world/africa",
-  bbc_africa: "site:bbc.com/news/world/africa",
-  aljazeera: "site:aljazeera.com/news",
-  espn: "site:espn.com",
-  billboard: "site:billboard.com"
-};
+const DISCOVERY_SOURCES = { all:"", kenyans:"site:kenyans.co.ke", cnn_africa:"site:edition.cnn.com/world/africa", bbc_africa:"site:bbc.com/news/world/africa", aljazeera:"site:aljazeera.com/news", espn:"site:espn.com", billboard:"site:billboard.com" };
 const DISCOVERY_SECTIONS = {
-  news: { terms: { kenya: "Kenya news", africa: "Africa news", world: "world news", international: "international news" } },
-  sports: { terms: { kenya: "Kenya sports", africa: "African sports", world: "international sports", international: "international sports" } },
-  music: { terms: { kenya: "Kenyan music artists", africa: "African music artists", world: "international music artists", international: "global music entertainment" } },
-  entertainment: { terms: { kenya: "Kenya entertainment celebrities", africa: "African entertainment", world: "world entertainment", international: "international entertainment" } },
-  technology: { terms: { kenya: "Kenya technology innovation", africa: "Africa technology innovation", world: "global technology news", international: "international technology news" } }
+  news:{terms:{kenya:"Kenya news",africa:"Africa news",world:"world news",international:"international news"}},
+  sports:{terms:{kenya:"Kenya sports",africa:"African sports",world:"international sports",international:"international sports"}},
+  music:{terms:{kenya:"Kenyan music artists",africa:"African music artists",world:"international music artists",international:"global music entertainment"}},
+  entertainment:{terms:{kenya:"Kenya entertainment celebrities",africa:"African entertainment",world:"world entertainment",international:"international entertainment"}},
+  technology:{terms:{kenya:"Kenya technology innovation",africa:"Africa technology innovation",world:"global technology news",international:"international technology news"}}
 };
-function decodeXml(value) {
-  return String(value || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"')
-    .replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-    .replace(/&#(\d+);/g, (_m, n) => String.fromCodePoint(Number(n)))
-    .replace(/\s+/g, " ").trim();
-}
-function rssItems(xml) {
-  const items = [];
-  const blocks = String(xml).match(/<item\b[\s\S]*?<\/item>/gi) || [];
-  for (const block of blocks) {
-    const field = name => {
-      const open = new RegExp("<" + name + "\\b[^>]*>", "i");
-      const found = block.match(open);
-      if (!found) return "";
-      const begin = found.index + found[0].length;
-      const closeAt = block.toLowerCase().indexOf("</" + name.toLowerCase() + ">", begin);
-      return closeAt < 0 ? "" : decodeXml(block.slice(begin, closeAt));
-    };
-    const title = field("title");
-    const url = field("link");
-    const excerpt = field("description");
-    const source = field("source");
-    const publishedAt = field("pubDate");
-    if (title && /^https?:\/\//i.test(url)) items.push({ title, url, excerpt: excerpt.slice(0, 280), source, publishedAt: publishedAt || null });
+
+function decodeXml(value){return String(value||"").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;|&apos;/g,"'").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&#(\d+);/g,(_m,n)=>String.fromCodePoint(Number(n))).replace(/\s+/g," ").trim();}
+function rssItems(xml){
+  const items=[]; const blocks=String(xml).match(/<item\b[\s\S]*?<\/item>/gi)||[];
+  for(const block of blocks){
+    const field=name=>{const open=new RegExp("<"+name+"\\b[^>]*>","i"),found=block.match(open);if(!found)return"";const begin=found.index+found[0].length,closeAt=block.toLowerCase().indexOf("</"+name.toLowerCase()+">",begin);return closeAt<0?"":decodeXml(block.slice(begin,closeAt));};
+    const title=field("title"),url=field("link"),excerpt=field("description"),source=field("source"),publishedAt=field("pubDate");
+    if(title&&/^https?:\/\//i.test(url))items.push({title,url,excerpt:excerpt.slice(0,280),source,publishedAt:publishedAt||null});
   }
   return items;
 }
-app.get("/api/discover", async (req, res) => {
-  const section = String(req.query.section || "news").toLowerCase();
-  const region = String(req.query.region || "kenya").toLowerCase();
-  const q = String(req.query.q || "").trim().slice(0, 140);
-  const source = String(req.query.source || "all").toLowerCase();
-  const config = DISCOVERY_SECTIONS[section] || DISCOVERY_SECTIONS.news;
-  const regionTerm = config.terms[region] || config.terms.kenya;
-  const sourceTerm = DISCOVERY_SOURCES[source] || "";
-  const query = [regionTerm, sourceTerm, q].filter(Boolean).join(" ");
-  const url = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=en-KE&gl=KE&ceid=KE:en";
-  try {
-    const response = await fetch(url, { headers: { "Accept": "application/rss+xml, application/xml, text/xml", "User-Agent": "Pulse360NewsReader/1.0" }, signal: AbortSignal.timeout(12000) });
-    if (!response.ok) throw new Error("Headline provider returned " + response.status);
-    const results = rssItems(await response.text()).slice(0, 30);
-    res.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=900");
-    res.json({ query, section, region, source: sourceTerm ? source : "all", total: results.length, results, fetchedAt: new Date().toISOString(), provider: "Google News RSS", note: "Headlines and snippets are supplied by publishers. Open the original source for full reporting." });
-  } catch (error) {
-    res.status(502).json({ error: "Live headline search is temporarily unavailable. Please try again shortly.", details: process.env.NODE_ENV === "development" ? error.message : undefined });
+async function fetchText(url,headers={}){
+  const response=await fetch(url,{headers:{"User-Agent":"Pulse360/1.0 news reader","Accept":"application/rss+xml, application/xml, text/xml, application/json, */*",...headers},signal:AbortSignal.timeout(10000)});
+  if(!response.ok)throw new Error("HTTP "+response.status); return response.text();
+}
+async function googleFeed(query){return rssItems(await fetchText("https://news.google.com/rss/search?q="+encodeURIComponent(query)+"&hl=en-KE&gl=KE&ceid=KE:en"));}
+async function directFeeds(section,region){
+  const feeds=[];
+  if(section==="news"){
+    feeds.push("https://feeds.bbci.co.uk/news/world/africa/rss.xml","https://feeds.bbci.co.uk/news/world/rss.xml");
+    if(region==="kenya")feeds.push("https://news.google.com/rss/search?q="+encodeURIComponent("site:kenyans.co.ke Kenya")+"&hl=en-KE&gl=KE&ceid=KE:en");
   }
+  if(section==="music")feeds.push("https://www.billboard.com/feed/");
+  const settled=await Promise.allSettled(feeds.map(fetchText));
+  return settled.flatMap(x=>x.status==="fulfilled"?rssItems(x.value):[]);
+}
+
+app.get("/api/discover",async(req,res)=>{
+  const section=String(req.query.section||"news").toLowerCase(),region=String(req.query.region||"kenya").toLowerCase(),q=String(req.query.q||"").trim().slice(0,140),source=String(req.query.source||"all").toLowerCase();
+  const config=DISCOVERY_SECTIONS[section]||DISCOVERY_SECTIONS.news, regionTerm=config.terms[region]||config.terms.kenya, sourceTerm=DISCOVERY_SOURCES[source]||"",query=[regionTerm,sourceTerm,q].filter(Boolean).join(" ");
+  try{
+    let results=[];
+    const direct=await directFeeds(section,region); results.push(...direct);
+    if(section==="sports"){
+      const leagues=["football/eng.1","football/uefa.champions","basketball/nba","soccer/usa.usa_mls","soccer/eng.1"];
+      const espn=await Promise.allSettled(leagues.map(l=>fetchText("https://site.api.espn.com/apis/site/v2/sports/"+l+"/news")));
+      for(const x of espn)if(x.status==="fulfilled"){try{const j=JSON.parse(x.value);for(const a of (j.articles||[]))if(a.headline&&a.links?.web?.href)results.push({title:a.headline,url:a.links.web.href,excerpt:a.description||a.published||"Open ESPN for the full story.",source:"ESPN",publishedAt:a.published||null});}catch{}}
+    }
+    const google=await googleFeed(query); results.push(...google);
+    const seen=new Set();results=results.filter(x=>x.title&&x.url&&!seen.has(x.url)&&seen.add(x.url)).sort((a,b)=>new Date(b.publishedAt||0)-new Date(a.publishedAt||0)).slice(0,30);
+    res.set("Cache-Control","public, s-maxage=180, stale-while-revalidate=600");
+    res.json({query,section,region,source:sourceTerm?source:"all",total:results.length,results,fetchedAt:new Date().toISOString(),provider:"Pulse360 multi-source live feeds",note:"Headlines and excerpts link to the original publisher."});
+  }catch(error){res.status(502).json({error:"Live feeds are temporarily unavailable.",details:process.env.NODE_ENV==="development"?error.message:undefined});}
 });
 
-app.get("/api/health", (_req,res) => res.json({ok:true,service:"Pulse360 API",version:"1.0.0"}));
-app.get("/api/categories", (_req,res) => res.json([
-  {key:"news",label:"News"},{key:"sports",label:"Sports"},{key:"entertainment",label:"Music & Entertainment"},{key:"technology",label:"Technology"}
-]));
-app.get("/api/stories", (req,res) => {
-  const q = String(req.query.q || "").trim().toLowerCase();
-  const category = String(req.query.category || "").trim().toLowerCase();
-  const limit = Math.min(Math.max(parseInt(req.query.limit,10) || 20,1),50);
-  let result = stories.filter(s => (!category || s.categoryKey === category || s.category.toLowerCase() === category) &&
-    (!q || [s.title,s.excerpt,s.category,s.author,s.region].join(" ").toLowerCase().includes(q)));
-  if (req.query.featured === "true") result = result.filter(s => s.featured);
-  res.set("Cache-Control","public, s-maxage=60, stale-while-revalidate=300");
-  res.json({total:result.length,stories:result.slice(0,limit)});
-});
-app.get("/api/stories/:slug", (req,res) => {
-  const story = stories.find(s => s.slug === req.params.slug || s.id === req.params.slug);
-  if (!story) return res.status(404).json({error:"Story not found"});
-  const related = stories.filter(s => s.id !== story.id && s.categoryKey === story.categoryKey).slice(0,3);
-  res.json({story,related});
-});
-app.post("/api/newsletter", (req,res) => {
-  const email = String(req.body.email || "").trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({error:"Enter a valid email address."});
-  // No email provider is configured yet; don't pretend to persist a subscription.
-  return res.status(501).json({error:"Newsletter sign-up is not connected yet. Please check back soon."});
-});
-app.use("/api", (_req,res) => res.status(404).json({error:"API endpoint not found"}));
-
-// Local development serves the same public files that Vercel serves statically.
+app.get("/api/health",(_req,res)=>res.json({ok:true,service:"Pulse360 API",version:"1.1.0",liveFeeds:true}));
+app.get("/api/categories",(_req,res)=>res.json([{key:"news",label:"News"},{key:"sports",label:"Sports"},{key:"entertainment",label:"Music & Entertainment"},{key:"technology",label:"Technology"}]));
+app.get("/api/stories",(req,res)=>{const q=String(req.query.q||"").trim().toLowerCase(),category=String(req.query.category||"").trim().toLowerCase(),limit=Math.min(Math.max(parseInt(req.query.limit,10)||20,1),50);let result=stories.filter(s=>(!category||s.categoryKey===category||s.category.toLowerCase()===category)&&(!q||[s.title,s.excerpt,s.category,s.author,s.region].join(" ").toLowerCase().includes(q)));if(req.query.featured==="true")result=result.filter(s=>s.featured);res.set("Cache-Control","public, s-maxage=60, stale-while-revalidate=300");res.json({total:result.length,stories:result.slice(0,limit)});});
+app.get("/api/stories/:slug",(req,res)=>{const story=stories.find(s=>s.slug===req.params.slug||s.id===req.params.slug);if(!story)return res.status(404).json({error:"Story not found"});res.json({story,related:stories.filter(s=>s.id!==story.id&&s.categoryKey===story.categoryKey).slice(0,3)});});
+app.post("/api/newsletter",(req,res)=>{const email=String(req.body.email||"").trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.status(400).json({error:"Enter a valid email address."});return res.status(501).json({error:"Newsletter sign-up is not connected yet. Please check back soon."});});
+app.use("/api",(_req,res)=>res.status(404).json({error:"API endpoint not found"}));
 app.use(express.static(path.join(__dirname,"public")));
-app.get("*path", (_req,res) => res.sendFile(path.join(__dirname,"public","index.html")));
-module.exports = app;
+app.get("*path",(_req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+module.exports=app;
