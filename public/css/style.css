@@ -56,3 +56,18 @@ body.drawer-open{overflow:hidden}
 .discovery-error{padding:30px 0;color:var(--muted);line-height:1.7}
 @media(max-width:720px){.top-strip .strip-inner{gap:9px;min-height:40px;flex-wrap:wrap;padding-top:6px;padding-bottom:6px}.social-links{gap:5px}.social-link{width:19px;height:19px}.social-link img{width:18px;height:18px}.top-strip #today-date{display:none}.top-strip .strip-inner>a{font-size:9px}.explore-drawer{padding-top:18px}.discovery-page{padding-top:25px}.discovery-hero{padding:24px 20px}.discovery-item{grid-template-columns:1fr;gap:12px}.discovery-open{justify-self:start}.discovery-search button{padding:0 12px}}
 @media(prefers-color-scheme:dark){body:not(.dark) .social-link img{filter:grayscale(1) brightness(0) invert(1)}}
+
+.info-page{padding-top:45px;padding-bottom:70px;min-height:65vh}
+.info-hero{background:var(--navy);color:#fff;padding:clamp(28px,5vw,55px);position:relative;overflow:hidden}
+.info-hero:after{content:"P360";position:absolute;right:12px;bottom:-38px;font-family:Manrope,sans-serif;font-size:clamp(100px,20vw,210px);font-weight:800;letter-spacing:-.1em;color:#ffffff09;pointer-events:none}
+.info-hero h1{position:relative;z-index:1;font-family:Manrope,sans-serif;font-size:clamp(36px,6vw,62px);line-height:1.04;letter-spacing:-.07em;margin:12px 0}
+.info-hero p{position:relative;z-index:1;color:#c0c9d8;line-height:1.7;margin:0;max-width:700px}
+.info-content{max-width:800px;margin:0 auto;padding:35px 12px 24px;font-size:14px;line-height:1.85;color:var(--ink)}
+.info-content p{color:var(--muted);margin:0 0 18px}
+.info-content .info-lead{font-size:18px;line-height:1.75;color:var(--ink)}
+.info-content h2{font-family:Manrope,sans-serif;font-size:22px;letter-spacing:-.04em;margin:28px 0 10px}
+.info-content ul{padding-left:22px;color:var(--muted)}
+.info-content li{margin:8px 0}
+.info-related{max-width:800px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;padding:20px 12px;border-top:1px solid var(--line)}
+.info-related a{padding:9px 12px;border:1px solid var(--line);font-size:10px;font-weight:800;border-radius:3px}
+.info-related a:hover{border-color:var(--red);color:var(--red)}
