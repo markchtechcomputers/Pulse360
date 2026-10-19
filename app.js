@@ -33,7 +33,16 @@ const DISCOVERY_SECTIONS = {
   sports: { terms: { kenya: "Kenya sports", africa: "African sports", world: "international sports", international: "international sports" } },
   music: { terms: { kenya: "Kenyan music artists", africa: "African music artists", world: "international music artists", international: "global music entertainment" } },
   entertainment: { terms: { kenya: "Kenya entertainment celebrities", africa: "African entertainment", world: "world entertainment", international: "international entertainment" } },
-  technology: { terms: { kenya: "Kenya technology innovation", africa: "Africa technology innovation", world: "global technology news", international: "international technology news" } }
+  technology: { terms: { kenya: "Kenya technology innovation", africa: "Africa technology innovation", world: "global technology news", international: "international technology news" } },
+  agriculture: { terms: { kenya: "Kenya agriculture farming", africa: "African agriculture farming", world: "global agriculture food security", international: "international agriculture farming" } },
+  business: { terms: { kenya: "Kenya business economy", africa: "African business economy", world: "global business economy", international: "international business economy" } },
+  culture: { terms: { kenya: "Kenya culture arts", africa: "African culture arts", world: "world culture arts", international: "international culture arts" } }
+};
+const DISCOVERY_REGIONS = {
+  kenya: "Kenya", uganda: "Uganda", tanzania: "Tanzania", nigeria: "Nigeria",
+  south_africa: "South Africa", ghana: "Ghana", ethiopia: "Ethiopia",
+  africa: "Africa", uk: "United Kingdom", us: "United States",
+  europe: "Europe", asia: "Asia", americas: "Americas", world: "world", international: "international"
 };
 function decodeXml(value) {
   return String(value || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
@@ -69,7 +78,7 @@ app.get("/api/discover", async (req, res) => {
   const q = String(req.query.q || "").trim().slice(0, 140);
   const source = String(req.query.source || "all").toLowerCase();
   const config = DISCOVERY_SECTIONS[section] || DISCOVERY_SECTIONS.news;
-  const regionTerm = config.terms[region] || config.terms.kenya;
+  const regionTerm = config.terms[region] || (DISCOVERY_REGIONS[region] ? (config.terms.world || "world news") + " " + DISCOVERY_REGIONS[region] : config.terms.kenya);
   const sourceTerm = DISCOVERY_SOURCES[source] || "";
   const query = [regionTerm, sourceTerm, q].filter(Boolean).join(" ");
   const url = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=en-KE&gl=KE&ceid=KE:en";
@@ -86,7 +95,7 @@ app.get("/api/discover", async (req, res) => {
 
 app.get("/api/health", (_req,res) => res.json({ok:true,service:"Pulse360 API",version:"1.0.0"}));
 app.get("/api/categories", (_req,res) => res.json([
-  {key:"news",label:"News"},{key:"sports",label:"Sports"},{key:"entertainment",label:"Music & Entertainment"},{key:"technology",label:"Technology"}
+  {key:"news",label:"News"},{key:"sports",label:"Sports"},{key:"entertainment",label:"Music & Entertainment"},{key:"technology",label:"Technology"},{key:"agriculture",label:"Agriculture"},{key:"business",label:"Business"},{key:"culture",label:"Culture"}
 ]));
 app.get("/api/stories", (req,res) => {
   const q = String(req.query.q || "").trim().toLowerCase();

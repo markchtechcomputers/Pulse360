@@ -7,8 +7,8 @@
     q: params.get("q") || "",
     source: params.get("source") || "all"
   };
-  const sectionLabels = {news:"News",sports:"Sports",music:"Music & artists",entertainment:"Entertainment",technology:"Technology"};
-  const regionLabels = {kenya:"Kenya",africa:"Africa",world:"World & international",international:"International"};
+  const sectionLabels = {news:"News",sports:"Sports",music:"Music & artists",entertainment:"Entertainment",technology:"Technology",business:"Business",agriculture:"Agriculture",culture:"Culture"};
+  const regionLabels = {kenya:"Kenya",uganda:"Uganda",tanzania:"Tanzania",nigeria:"Nigeria",south_africa:"South Africa",ghana:"Ghana",africa:"Africa",uk:"United Kingdom",us:"United States",europe:"Europe",asia:"Asia",americas:"Americas",world:"World & international",international:"International"};
   const esc = value => String(value || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const dateLabel = value => {
     if(!value) return "Latest";
