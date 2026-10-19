@@ -8,6 +8,17 @@
   advertise:{title:"Advertise with Pulse360",intro:"Reach readers interested in Kenya, Africa, sport, music and global affairs.",html:'<p class="info-lead">We are designing advertising opportunities for brands and organisations that want to reach curious, engaged readers.</p><h2>Potential placements</h2><ul><li>Clearly labelled sponsored articles and partner features.</li><li>Display advertising and campaign placements.</li><li>Music, sport and culture sponsorships.</li><li>Event and launch promotion.</li></ul><h2>Our approach</h2><p>Paid content should be clearly identified and kept separate from independent editorial decisions. We will publish a media kit, audience information, rates and an official advertising contact once those details are ready and can be substantiated.</p><p>No advertising inventory or audience figures are being offered through this development page yet.</p>'},
   contact:{title:"Contact Us",intro:"Get in touch with the Pulse360 team.",html:'<p class="info-lead">We welcome corrections, story ideas, event tips, artist releases, sports updates and questions about working with Pulse360.</p><h2>Editorial tips and corrections</h2><p>When sending a tip, include the location, date, relevant context and links to sources that can be checked. Do not send confidential personal data or material you are not authorised to share.</p><h2>Business, advertising and partnerships</h2><p>Official newsroom and advertising email addresses are still being set up. We will publish verified contact channels here before opening public submissions. This development site does not yet have a connected contact form.</p><p>For urgent matters, use an established official channel once it is published on this site; do not assume that a draft or sample contact detail is monitored.</p>'}
  };
+ document.addEventListener("click",e=>{
+  const social=e.target.closest("[data-social-coming]");
+  if(!social)return;
+  e.preventDefault();
+  let toast=document.querySelector("#toast");
+  if(!toast){toast=document.createElement("div");toast.id="toast";toast.className="toast";toast.setAttribute("role","status");document.body.appendChild(toast);}
+  toast.textContent="Pulse360’s "+social.dataset.socialComing+" account will be linked here once it is created.";
+  toast.classList.add("show");
+  window.clearTimeout(window.__pulse360ToastTimer);
+  window.__pulse360ToastTimer=window.setTimeout(()=>toast.classList.remove("show"),3200);
+ });
  document.addEventListener("DOMContentLoaded",()=>{
   $("#year").textContent=new Date().getFullYear();
   const topic=new URLSearchParams(location.search).get("topic")||"about";
