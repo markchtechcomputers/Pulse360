@@ -61,7 +61,18 @@
       $("#retry-discovery")?.addEventListener("click",load);
     }
   }
-  document.addEventListener("DOMContentLoaded",()=>{
+  document.addEventListener("click",e=>{
+  const social=e.target.closest("[data-social-coming]");
+  if(!social)return;
+  e.preventDefault();
+  let toast=document.querySelector("#toast");
+  if(!toast){toast=document.createElement("div");toast.id="toast";toast.className="toast";toast.setAttribute("role","status");document.body.appendChild(toast);}
+  toast.textContent="Pulse360’s "+social.dataset.socialComing+" account will be linked here once it is created.";
+  toast.classList.add("show");
+  window.clearTimeout(window.__pulse360ToastTimer);
+  window.__pulse360ToastTimer=window.setTimeout(()=>toast.classList.remove("show"),3200);
+ });
+ document.addEventListener("DOMContentLoaded",()=>{
     $("#year").textContent=new Date().getFullYear();
     if(localStorage.getItem("pulse360-theme")==="dark")document.body.classList.add("dark");
     $("#theme-toggle").addEventListener("click",()=>{
