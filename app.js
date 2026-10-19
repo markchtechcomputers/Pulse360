@@ -19,6 +19,15 @@ const stories = [
 ];
 
 
+const DISCOVERY_SOURCES = {
+  all: "",
+  kenyans: "site:kenyans.co.ke",
+  cnn_africa: "site:edition.cnn.com/world/africa",
+  bbc_africa: "site:bbc.com/news/world/africa",
+  aljazeera: "site:aljazeera.com/news",
+  espn: "site:espn.com",
+  billboard: "site:billboard.com"
+};
 const DISCOVERY_SECTIONS = {
   news: { terms: { kenya: "Kenya news", africa: "Africa news", world: "world news", international: "international news" } },
   sports: { terms: { kenya: "Kenya sports", africa: "African sports", world: "international sports", international: "international sports" } },
@@ -58,16 +67,18 @@ app.get("/api/discover", async (req, res) => {
   const section = String(req.query.section || "news").toLowerCase();
   const region = String(req.query.region || "kenya").toLowerCase();
   const q = String(req.query.q || "").trim().slice(0, 140);
+  const source = String(req.query.source || "all").toLowerCase();
   const config = DISCOVERY_SECTIONS[section] || DISCOVERY_SECTIONS.news;
   const regionTerm = config.terms[region] || config.terms.kenya;
-  const query = q ? (regionTerm + " " + q) : regionTerm;
+  const sourceTerm = DISCOVERY_SOURCES[source] || "";
+  const query = [regionTerm, sourceTerm, q].filter(Boolean).join(" ");
   const url = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=en-KE&gl=KE&ceid=KE:en";
   try {
     const response = await fetch(url, { headers: { "Accept": "application/rss+xml, application/xml, text/xml", "User-Agent": "Pulse360NewsReader/1.0" }, signal: AbortSignal.timeout(12000) });
     if (!response.ok) throw new Error("Headline provider returned " + response.status);
     const results = rssItems(await response.text()).slice(0, 30);
     res.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=900");
-    res.json({ query, section, region, total: results.length, results, fetchedAt: new Date().toISOString(), provider: "Google News RSS", note: "Headlines and snippets are supplied by publishers. Open the original source for full reporting." });
+    res.json({ query, section, region, source: sourceTerm ? source : "all", total: results.length, results, fetchedAt: new Date().toISOString(), provider: "Google News RSS", note: "Headlines and snippets are supplied by publishers. Open the original source for full reporting." });
   } catch (error) {
     res.status(502).json({ error: "Live headline search is temporarily unavailable. Please try again shortly.", details: process.env.NODE_ENV === "development" ? error.message : undefined });
   }
