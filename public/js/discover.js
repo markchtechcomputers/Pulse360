@@ -18,6 +18,7 @@
   function syncLinks() {
     document.querySelectorAll("[data-section]").forEach(a => {
       const next = new URLSearchParams({section:a.dataset.section,region:state.region});
+      if(state.source!=="all")next.set("source",state.source);
       a.href = "/discover.html?" + next.toString();
       a.classList.toggle("active",a.dataset.section===state.section);
     });
