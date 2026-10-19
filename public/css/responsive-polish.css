@@ -25,7 +25,7 @@ img{max-width:100%}
  .social-links::-webkit-scrollbar{display:none}
  .top-strip .strip-inner>a{font-size:9px!important;margin-left:auto!important}
  .top-strip .strip-inner>a span{font-size:12px}
- .header-main{display:flex;flex-wrap:nowrap;gap:8px;padding-top:10px;padding-bottom:10px;min-height:68px}
+ .header-main{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;padding-bottom:10px;min-height:68px}
  .brand-mark{width:37px;height:37px;flex:0 0 37px}
  .brand-copy strong{font-size:22px;letter-spacing:-1px}
  .brand-copy small{font-size:6px;letter-spacing:.8px}
