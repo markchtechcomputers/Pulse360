@@ -20,33 +20,39 @@ const stories = [
 
 
 const DISCOVERY_SECTIONS = {
-  news: { label: "News", terms: { kenya: "Kenya news", africa: "Africa news", world: "world news", international: "international news" } },
-  sports: { label: "Sports", terms: { kenya: "Kenya sports", africa: "African sports", world: "international sports", international: "international sports" } },
-  music: { label: "Music", terms: { kenya: "Kenyan music artists", africa: "African music artists", world: "international music artists", international: "global music entertainment" } },
-  entertainment: { label: "Entertainment", terms: { kenya: "Kenya entertainment celebrities", africa: "African entertainment", world: "world entertainment", international: "international entertainment" } },
-  technology: { label: "Technology", terms: { kenya: "Kenya technology innovation", africa: "Africa technology innovation", world: "global technology news", international: "international technology news" } }
+  news: { terms: { kenya: "Kenya news", africa: "Africa news", world: "world news", international: "international news" } },
+  sports: { terms: { kenya: "Kenya sports", africa: "African sports", world: "international sports", international: "international sports" } },
+  music: { terms: { kenya: "Kenyan music artists", africa: "African music artists", world: "international music artists", international: "global music entertainment" } },
+  entertainment: { terms: { kenya: "Kenya entertainment celebrities", africa: "African entertainment", world: "world entertainment", international: "international entertainment" } },
+  technology: { terms: { kenya: "Kenya technology innovation", africa: "Africa technology innovation", world: "global technology news", international: "international technology news" } }
 };
 function decodeXml(value) {
-  return String(value || "").replace(/<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>/g, "$1")
+  return String(value || "").replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
     .replace(/<[^>]*>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"')
     .replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-    .replace(/&#(\\d+);/g, (_m, n) => String.fromCodePoint(Number(n)))
-    .replace(/\\s+/g, " ").trim();
+    .replace(/&#(\d+);/g, (_m, n) => String.fromCodePoint(Number(n)))
+    .replace(/\s+/g, " ").trim();
 }
 function rssItems(xml) {
-  return [...String(xml).matchAll(/<item>([\\s\\S]*?)<\\/item>/gi)].map(match => {
-    const block = match[1];
+  const items = [];
+  const blocks = String(xml).match(/<item\b[\s\S]*?<\/item>/gi) || [];
+  for (const block of blocks) {
     const field = name => {
-      const found = block.match(new RegExp("<" + name + "(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)<\\\\/" + name + ">", "i"));
-      return found ? decodeXml(found[1]) : "";
+      const open = new RegExp("<" + name + "\\b[^>]*>", "i");
+      const found = block.match(open);
+      if (!found) return "";
+      const begin = found.index + found[0].length;
+      const closeAt = block.toLowerCase().indexOf("</" + name.toLowerCase() + ">", begin);
+      return closeAt < 0 ? "" : decodeXml(block.slice(begin, closeAt));
     };
     const title = field("title");
     const url = field("link");
-    const description = field("description");
+    const excerpt = field("description");
     const source = field("source");
-    const pubDate = field("pubDate");
-    return { title, url, excerpt: description.slice(0, 280), source, publishedAt: pubDate || null };
-  }).filter(item => item.title && /^https?:\\/\\//i.test(item.url));
+    const publishedAt = field("pubDate");
+    if (title && /^https?:\/\//i.test(url)) items.push({ title, url, excerpt: excerpt.slice(0, 280), source, publishedAt: publishedAt || null });
+  }
+  return items;
 }
 app.get("/api/discover", async (req, res) => {
   const section = String(req.query.section || "news").toLowerCase();
@@ -57,10 +63,9 @@ app.get("/api/discover", async (req, res) => {
   const query = q ? (regionTerm + " " + q) : regionTerm;
   const url = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=en-KE&gl=KE&ceid=KE:en";
   try {
-    const response = await fetch(url, { headers: { "Accept": "application/rss+xml, application/xml, text/xml", "User-Agent": "Pulse360NewsReader/1.0 (headline discovery)" }, signal: AbortSignal.timeout(12000) });
+    const response = await fetch(url, { headers: { "Accept": "application/rss+xml, application/xml, text/xml", "User-Agent": "Pulse360NewsReader/1.0" }, signal: AbortSignal.timeout(12000) });
     if (!response.ok) throw new Error("Headline provider returned " + response.status);
-    const xml = await response.text();
-    const results = rssItems(xml).slice(0, 30);
+    const results = rssItems(await response.text()).slice(0, 30);
     res.set("Cache-Control", "public, s-maxage=300, stale-while-revalidate=900");
     res.json({ query, section, region, total: results.length, results, fetchedAt: new Date().toISOString(), provider: "Google News RSS", note: "Headlines and snippets are supplied by publishers. Open the original source for full reporting." });
   } catch (error) {
