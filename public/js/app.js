@@ -26,6 +26,9 @@
       localStorage.setItem("pulse360-theme",theme);
       $("#theme-toggle").setAttribute("aria-label",theme==="dark"?"Switch to light theme":"Switch to dark theme");
     });
+    // Mark this handler so responsive-polish.js does not bind a second click listener.
+    // Two listeners toggled the same class twice, leaving the mobile menu closed.
+    $("#menu-toggle").dataset.pulseBound="1";
     $("#menu-toggle").addEventListener("click",()=>{
       const open=$("#main-nav").classList.toggle("open");
       $("#menu-toggle").setAttribute("aria-expanded",String(open));
