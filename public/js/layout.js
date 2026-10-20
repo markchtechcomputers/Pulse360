@@ -28,11 +28,30 @@
     return new Intl.DateTimeFormat("en-KE", { day: "numeric", month: "short" }).format(new Date(iso));
   };
   const hue = s => { let h = 0; for (const c of String(s || "x")) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+  const PROXY_IMAGE_HOSTS = [
+    "google.com", "googleusercontent.com", "gstatic.com", "bbci.co.uk", "bbc.co.uk", "bbc.com",
+    "cnn.com", "cnn.io", "aljazeera.com", "kenyans.co.ke", "nation.africa", "standardmedia.co.ke",
+    "citizen.digital", "tuko.co.ke", "the-star.co.ke", "capitalfm.co.ke", "theeastafrican.co.ke",
+    "monitor.co.ug", "newvision.co.ug", "thecitizen.co.tz", "dailynews.co.tz", "news24.com",
+    "ewn.co.za", "iol.co.za", "sabcnews.com", "enca.com", "timeslive.co.za", "mg.co.za",
+    "dailymaverick.co.za", "businesslive.co.za", "reuters.com", "apnews.com", "theguardian.com",
+    "nytimes.com", "washingtonpost.com", "africanews.com", "allafrica.com", "punchng.com",
+    "vanguardngr.com", "premiumtimesng.com", "images.unsplash.com", "cloudfront.net", "wp.com"
+  ];
+  const imageSrc = value => {
+    if (!value) return "";
+    try {
+      const u = new URL(value, location.href);
+      const host = u.hostname.toLowerCase();
+      const proxyable = ["https:", "http:"].includes(u.protocol) && PROXY_IMAGE_HOSTS.some(s => host === s || host.endsWith("." + s));
+      return proxyable ? "/api/image?url=" + encodeURIComponent(u.href) : value;
+    } catch { return value; }
+  };
   const store = {};
-  const media = it => `<a class="card-media" data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(it.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="strict-origin-when-cross-origin">` : ""}</a>`;
+  const media = it => `<a class="card-media" data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(imageSrc(it.image))}" alt="" loading="lazy" decoding="async" referrerpolicy="strict-origin-when-cross-origin">` : ""}</a>`;
   const when = it => ago(it.publishedAt) || esc(it.dateLabel || "");
   const card = it => { store[it.id] = it; return `<article class="card">${media(it)}<div class="card-body"><div class="card-meta"><b>${esc(it.source || "News")}</b><span>${when(it)}</span></div><h3><a data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a></h3>${it.excerpt ? `<p>${esc(it.excerpt)}</p>` : ""}</div></article>`; };
-  const slide = it => { store[it.id] = it; return `<article class="slide" style="--h:${hue(it.source)}">${it.image ? `<img src="${esc(it.image)}" alt="" decoding="async" referrerpolicy="strict-origin-when-cross-origin">` : ""}<div class="slide-body"><span class="tag">${esc(it.category === "all" ? "Top story" : it.category)} · ${esc(it.region === "all" ? "World" : it.region.replace("-", " "))}</span><h2><a data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a></h2>${it.excerpt ? `<p>${esc(it.excerpt)}</p>` : ""}<div class="meta">${esc(it.source || "")} · ${when(it)}</div></div></article>`; };
+  const slide = it => { store[it.id] = it; return `<article class="slide" style="--h:${hue(it.source)}">${it.image ? `<img src="${esc(imageSrc(it.image))}" alt="" decoding="async" referrerpolicy="strict-origin-when-cross-origin">` : ""}<div class="slide-body"><span class="tag">${esc(it.category === "all" ? "Top story" : it.category)} · ${esc(it.region === "all" ? "World" : it.region.replace("-", " "))}</span><h2><a data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a></h2>${it.excerpt ? `<p>${esc(it.excerpt)}</p>` : ""}<div class="meta">${esc(it.source || "")} · ${when(it)}</div></div></article>`; };
   const api = async (path, params) => {
     const r = await fetch("/api/" + path + (params ? "?" + new URLSearchParams(params) : ""));
     const d = await r.json().catch(() => ({}));
@@ -71,7 +90,7 @@
     ensureModal(); const my = ++token;
     const first = modal.hidden; if (first) lastFocus = document.activeElement;
     const place = it.region && it.region !== "all" ? it.region.replace("-", " ") : "world";
-    $("#m-body").innerHTML = `<div class="m-media" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(it.image)}" alt="" referrerpolicy="strict-origin-when-cross-origin">` : ""}</div>
+    $("#m-body").innerHTML = `<div class="m-media" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(imageSrc(it.image))}" alt="" referrerpolicy="strict-origin-when-cross-origin">` : ""}</div>
 <div class="m-body"><div class="card-meta"><b>${esc(it.source || "News")}</b><span>${when(it)}</span><span>· ${esc(place)}</span></div><h2>${esc(it.title)}</h2>
 <div id="m-sum">${it.excerpt ? `<p class="m-sum">${esc(it.excerpt)}</p>` : ""}</div>
 <div class="m-actions"><a class="btn primary" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">Read full story at ${esc(it.source || "source")} ↗</a><button class="btn" id="m-share" type="button">Share</button></div>
@@ -98,7 +117,7 @@ ${it.coverage && it.coverage.length ? `<h3 class="m-h">Also reported by</h3><div
     if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     if (openStory(a.dataset.story, !(modal && !modal.hidden))) e.preventDefault();
   });
-  window.P360 = { CATS, REG, esc, ago, card, slide, api, swr, toast, ICON, store };
+  window.P360 = { CATS, REG, esc, ago, card, slide, api, swr, toast, ICON, store, imageSrc };
 
   function build() {
     const top = $("#site-top"), foot = $("#site-foot");
