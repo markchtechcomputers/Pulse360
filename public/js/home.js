@@ -10,14 +10,14 @@
     ["Uganda", "Country watch", "uganda", "news"], ["Tanzania", "Country watch", "tanzania", "news"], ["Nigeria", "Country watch", "nigeria", "news"], ["South Africa", "Country watch", "south-africa", "news"], ["Ethiopia", "Country watch", "ethiopia", "news"], ["Ghana", "Country watch", "ghana", "news"]
   ];
   let heroSig = "", paused = false;
-  const stamp = () => { const s = $("#upd"); if (s) s.textContent = "Live · auto-updates every minute · last update " + new Date().toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" }); };
+  const stamp = fetchedAt => { const s = $("#upd"); if (!s) return; const t = fetchedAt ? Date.parse(fetchedAt) : NaN; s.textContent = "Live · auto-checks every minute · last source fetch " + (Number.isFinite(t) ? new Date(t).toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" }) : "time unavailable"); };
 
   function topList(items) {
     const t = [...items].sort((a, b) => Date.parse(b.publishedAt || 0) - Date.parse(a.publishedAt || 0)).slice(0, 6);
     return `<aside class="top-list"><h3><span class="pulse"></span>Top headlines · live</h3><ol>${t.map(i => `<li><div><a data-story="${esc(i.id)}" href="${esc(i.url)}" target="_blank" rel="noopener noreferrer">${esc(i.title)}</a><small>${esc(i.source || "")} · ${P.ago(i.publishedAt)}</small></div></li>`).join("")}</ol></aside>`;
   }
   function renderHero(items) {
-    const sig = items.map(i => i.id).join(); if (!items.length || sig === heroSig) return; heroSig = sig;
+    const sig = items.map(i => [i.id, i.image || "", i.title || "", i.excerpt || ""].join("|")).join("¦"); if (!items.length || sig === heroSig) return; heroSig = sig;
     const slides = items.map(slide).join("");
     $("#hero").innerHTML = `<div class="sec-head"><div><span class="eyebrow">Featured · updated every minute</span><h2>Top news<i>.</i></h2></div></div><div class="top-grid"><div class="hero-wrap"><div class="hero-track" id="ht" tabindex="0" aria-label="Top stories — swipe">${slides}</div><button class="hero-nav prev" aria-label="Previous story">${ICON.l}</button><button class="hero-nav next" aria-label="Next story">${ICON.r}</button><div class="dots" id="dots">${items.map((_, i) => `<button aria-label="Story ${i + 1}"></button>`).join("")}</div></div>${topList(items)}</div>`;
     const t = $("#ht"), dots = [...$("#dots").children];
@@ -29,7 +29,7 @@
     dots.forEach((d, k) => d.addEventListener("click", () => go(k)));
     $("#hero .prev").onclick = () => go(cur() - 1); $("#hero .next").onclick = () => go(cur() + 1);
   }
-  const loadTop = (skipCache) => swr("top", {}, d => { renderHero(d.items || []); stamp(); }, { skipCache }).catch(() => { if (!heroSig) $("#hero").innerHTML = '<div class="error">Top stories are unavailable right now. Check your connection and tap “Refresh now”.</div>'; });
+  const loadTop = (skipCache) => swr("top", {}, d => { renderHero(d.items || []); stamp(d.fetchedAt); }, { skipCache }).catch(() => { if (!heroSig) $("#hero").innerHTML = '<div class="error">Top stories are unavailable right now. Check your connection and tap “Refresh now”.</div>'; });
   const loadTicker = (skipCache) => swr("ticker", {}, d => {
     const items = d.items || []; if (!items.length) { $("#ticker").hidden = true; return; }
     const h = items.map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener noreferrer"><b>${esc(t.tag)}</b>${esc(t.text)}</a>`).join("");
@@ -44,7 +44,7 @@
     el.querySelector(".l").onclick = () => rail.scrollBy({ left: -rail.clientWidth * .85, behavior: "smooth" });
     el.querySelector(".r").onclick = () => rail.scrollBy({ left: rail.clientWidth * .85, behavior: "smooth" });
     const paint = items => {
-      const s = items.map(x => x.id).join(); if (s === sig) return;
+      const s = items.map(x => [x.id, x.image || "", x.title || "", x.excerpt || ""].join("|")).join("¦"); if (s === sig) return;
       if (sig && rail.scrollLeft > 40) return; // don't yank a rail the reader is browsing
       sig = s;
       rail.innerHTML = items.length ? items.map(card).join("") + `<a class="card" href="${href}" style="flex:0 0 190px;display:grid;place-items:center;font-weight:800;color:var(--red);text-align:center;padding:12px">Load more ${esc(title)} →</a>` : '<div class="empty">No stories right now — check back soon.</div>';
