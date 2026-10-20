@@ -29,10 +29,10 @@
   };
   const hue = s => { let h = 0; for (const c of String(s || "x")) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
   const store = {};
-  const media = it => `<a class="card-media" data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(it.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : ""}</a>`;
+  const media = it => `<a class="card-media" data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(it.image)}" alt="" loading="lazy" decoding="async" referrerpolicy="strict-origin-when-cross-origin">` : ""}</a>`;
   const when = it => ago(it.publishedAt) || esc(it.dateLabel || "");
   const card = it => { store[it.id] = it; return `<article class="card">${media(it)}<div class="card-body"><div class="card-meta"><b>${esc(it.source || "News")}</b><span>${when(it)}</span></div><h3><a data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a></h3>${it.excerpt ? `<p>${esc(it.excerpt)}</p>` : ""}</div></article>`; };
-  const slide = it => { store[it.id] = it; return `<article class="slide" style="--h:${hue(it.source)}">${it.image ? `<img src="${esc(it.image)}" alt="" decoding="async" referrerpolicy="no-referrer">` : ""}<div class="slide-body"><span class="tag">${esc(it.category === "all" ? "Top story" : it.category)} · ${esc(it.region === "all" ? "World" : it.region.replace("-", " "))}</span><h2><a data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a></h2>${it.excerpt ? `<p>${esc(it.excerpt)}</p>` : ""}<div class="meta">${esc(it.source || "")} · ${when(it)}</div></div></article>`; };
+  const slide = it => { store[it.id] = it; return `<article class="slide" style="--h:${hue(it.source)}">${it.image ? `<img src="${esc(it.image)}" alt="" decoding="async" referrerpolicy="strict-origin-when-cross-origin">` : ""}<div class="slide-body"><span class="tag">${esc(it.category === "all" ? "Top story" : it.category)} · ${esc(it.region === "all" ? "World" : it.region.replace("-", " "))}</span><h2><a data-story="${esc(it.id)}" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">${esc(it.title)}</a></h2>${it.excerpt ? `<p>${esc(it.excerpt)}</p>` : ""}<div class="meta">${esc(it.source || "")} · ${when(it)}</div></div></article>`; };
   const api = async (path, params) => {
     const r = await fetch("/api/" + path + (params ? "?" + new URLSearchParams(params) : ""));
     const d = await r.json().catch(() => ({}));
@@ -71,7 +71,7 @@
     ensureModal(); const my = ++token;
     const first = modal.hidden; if (first) lastFocus = document.activeElement;
     const place = it.region && it.region !== "all" ? it.region.replace("-", " ") : "world";
-    $("#m-body").innerHTML = `<div class="m-media" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(it.image)}" alt="" referrerpolicy="no-referrer">` : ""}</div>
+    $("#m-body").innerHTML = `<div class="m-media" style="--h:${hue(it.source)}" data-ini="${esc((it.source || "P")[0].toUpperCase())}">${it.image ? `<img src="${esc(it.image)}" alt="" referrerpolicy="strict-origin-when-cross-origin">` : ""}</div>
 <div class="m-body"><div class="card-meta"><b>${esc(it.source || "News")}</b><span>${when(it)}</span><span>· ${esc(place)}</span></div><h2>${esc(it.title)}</h2>
 <div id="m-sum">${it.excerpt ? `<p class="m-sum">${esc(it.excerpt)}</p>` : ""}</div>
 <div class="m-actions"><a class="btn primary" href="${esc(it.url)}" target="_blank" rel="noopener noreferrer">Read full story at ${esc(it.source || "source")} ↗</a><button class="btn" id="m-share" type="button">Share</button></div>
@@ -156,7 +156,7 @@ ${brand()}
     // social placeholders, back-to-top, broken images
     document.addEventListener("click", e => { const s = e.target.closest("[data-social]"); if (s) { e.preventDefault(); toast("Pulse360’s " + s.dataset.social + " page will be linked here once it is live."); } });
     $("#to-top")?.addEventListener("click", e => { e.preventDefault(); scrollTo({ top: 0, behavior: "smooth" }); });
-    document.addEventListener("error", e => { const i = e.target; if (i.tagName === "IMG" && i.closest(".card-media,.slide")) i.remove(); }, true);
+    document.addEventListener("error", e => { const i = e.target; if (i.tagName === "IMG" && i.closest(".card-media,.slide,.m-media")) i.remove(); }, true);
   }
   document.addEventListener("DOMContentLoaded", () => { build(); wire(); document.dispatchEvent(new Event("p360:ready")); });
 })();
