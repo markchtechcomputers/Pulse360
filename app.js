@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const { getFeed, getTop, getTicker, getPreview, diagnose, REGIONS, CATEGORIES, K } = require("./lib/feeds");
+const { relayImage, allowed: allowedImageHost } = require("./lib/image-proxy");
 
 const app = express();
 app.disable("x-powered-by");
@@ -27,6 +28,28 @@ const wrap = fn => async (req, res) => {
   try { await fn(req, res); }
   catch (e) { console.error("[api]", req.path, e.message); res.status(502).json({ error: "Live news is temporarily unavailable. Please try again shortly." }); }
 };
+
+app.get("/api/image", async (req, res) => {
+  const raw = String(req.query.url || "");
+  if (!raw || raw.length > 4096) return res.status(400).json({ error: "Missing or oversized image URL" });
+  let u;
+  try { u = new URL(raw); } catch { return res.status(400).json({ error: "Invalid image URL" }); }
+  if (u.protocol !== "https:" || !allowedImageHost(u.hostname))
+    return res.status(403).json({ error: "Image host is not allowed" });
+  try {
+    const image = await relayImage(u.href);
+    res.set({
+      "Content-Type": image.type,
+      "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+      "X-Content-Type-Options": "nosniff",
+      "Cross-Origin-Resource-Policy": "same-origin"
+    });
+    res.send(image.bytes);
+  } catch (e) {
+    console.warn("[pulse360] image relay failed:", e.message);
+    res.status(502).json({ error: "Publisher image could not be loaded" });
+  }
+});
 
 app.get("/api/health", (_q, res) => res.json({ ok: true, service: "Pulse360 API", version: "2.0.0", kenyansScrapers: Object.keys(K) }));
 app.get("/api/diagnose", wrap(async (_q, res) => { res.set("Cache-Control", "no-store"); res.json({ checkedAt: new Date().toISOString(), results: await diagnose() }); }));
