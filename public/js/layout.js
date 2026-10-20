@@ -36,7 +36,7 @@
     "ewn.co.za", "iol.co.za", "sabcnews.com", "enca.com", "timeslive.co.za", "mg.co.za",
     "dailymaverick.co.za", "businesslive.co.za", "reuters.com", "apnews.com", "theguardian.com",
     "nytimes.com", "washingtonpost.com", "africanews.com", "allafrica.com", "punchng.com",
-    "vanguardngr.com", "premiumtimesng.com", "images.unsplash.com", "cloudfront.net", "wp.com"
+    "vanguardngr.com", "premiumtimesng.com", "unsplash.com", "cloudfront.net", "wp.com", "wordpress.com", "wordpress.org", "cloudinary.com", "imgix.net", "akamaized.net", "akamaihd.net", "fastly.net", "b-cdn.net", "squarespace-cdn.com", "substackcdn.com", "ctfassets.net", "vox-cdn.com", "bwbx.io", "images.wsj.net", "gettyimages.com", "gravatar.com", "staticflickr.com", "flickr.com", "wikimedia.org", "wikipedia.org", "ytimg.com", "yt3.ggpht.com", "licdn.com", "fbcdn.net"
   ];
   const imageSrc = value => {
     if (!value) return "";
