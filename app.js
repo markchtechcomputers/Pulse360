@@ -34,7 +34,7 @@ app.get("/api/image", async (req, res) => {
   if (!raw || raw.length > 4096) return res.status(400).json({ error: "Missing or oversized image URL" });
   let u;
   try { u = new URL(raw); } catch { return res.status(400).json({ error: "Invalid image URL" }); }
-  if (u.protocol !== "https:" || !allowedImageHost(u.hostname))
+  if (!["https:", "http:"].includes(u.protocol) || !allowedImageHost(u.hostname))
     return res.status(403).json({ error: "Image host is not allowed" });
   try {
     const image = await relayImage(u.href);
