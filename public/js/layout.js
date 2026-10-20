@@ -43,7 +43,7 @@
     try {
       const u = new URL(value, location.href);
       const host = u.hostname.toLowerCase();
-      const proxyable = u.protocol === "https:" && PROXY_IMAGE_HOSTS.some(s => host === s || host.endsWith("." + s));
+      const proxyable = ["https:", "http:"].includes(u.protocol) && PROXY_IMAGE_HOSTS.some(s => host === s || host.endsWith("." + s));
       return proxyable ? "/api/image?url=" + encodeURIComponent(u.href) : value;
     } catch { return value; }
   };
